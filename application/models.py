@@ -214,7 +214,7 @@ class Coffee(db.Model):
     runid = db.Column(db.Integer, db.ForeignKey("Runs.id"))
     modified = db.Column(UTCOnlyDateTime(timezone=False), default=sydney_timezone_now)
 
-    run = db.relationship("Run", backref=db.backref("coffees"))
+    run = db.relationship("Run", backref=db.backref("coffees"), order_by="Coffee.coffee")
     addict = db.relationship("User", backref=db.backref("coffees", order_by="Coffee.id"))
 
     price = db.Column(db.Float)  # In Dollars
