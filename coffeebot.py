@@ -51,6 +51,7 @@ def list_runs(slackclient, user, channel, match):
   q = Run.query.filter_by(is_open=True).order_by('time').all()
   if not q:
     channel.send_message('No open runs')
+    return (True, None)
   for run in q:
     person = User.query.filter_by(id=run.person).first()
     time_to_run = run.time - now
@@ -58,7 +59,7 @@ def list_runs(slackclient, user, channel, match):
         'Run {}: {} is going to {} in {} (at {})'.format(
           run.id, person.name, run.cafe.name,
           flask_babel.format_timedelta(time_to_run), run.time))
-
+  return (True, None)
 
 def order_coffee(slackclient, user, channel, match):
   """Handle adding coffee to existing orders.
@@ -82,25 +83,28 @@ def order_coffee(slackclient, user, channel, match):
     # Pick a run
     runs = Run.query.filter_by(is_open=True).order_by('time').all()
     if len(runs) > 1:
-      channel.send_message(
-          'More than one open run, please specify by adding run=<id> on the end.')
-      list_runs(slackclient, user, channel, match=None)
-      return
+      def resolve_run_feedback():
+        channel.send_message(
+            'More than one open run, please specify by adding run=<id> on the end.')
+        list_runs(slackclient, user, channel, match=None)
+      return (False, resolve_run_feedback)
     if len(runs) == 0:
-      channel.send_message('No open runs')
-      return
+      def resolve_closed_feedback():
+        channel.send_message('No open runs')
+      return (False, resolve_closed_feedback)
     run = runs[0]
 
   # Create the coffee
-  c = coffeespecs.Coffee(match.group(1))
+  c = coffeespecs.Coffee(match.groupdict().get('order', None))
   validation_errors = list(c.validation_errors())
   if validation_errors:
-    channel.send_message(
-        'That coffee is not valid missing the following specs: {}. Got: {}'.format(
-          ', '.join(spec.name for spec in validation_errors),
-          c,
-          ))
-    return
+    def resolve_validation_feedback():
+      channel.send_message(
+          'That coffee is not valid missing the following specs: {}. Got: {}'.format(
+            ', '.join(spec.name for spec in validation_errors),
+            c,
+            ))
+    return (False, resolve_validation_feedback)
   coffee = Coffee(c, 0, run.id)
 
 
@@ -131,13 +135,14 @@ def order_coffee(slackclient, user, channel, match):
         coffee.pretty_print(),
         mention(user),
         mention_runner))
+  return (True, None)
 
 
 def set_up_orders():
   ORDERS_DISPATCH[re.compile('(?:(?:open|list) )?runs')] = list_runs
-  ORDERS_DISPATCH[re.compile('order(?: an?)? ([^\=]+)(?: run=(?P<runid>[0-9]+))?')] = order_coffee
-  ORDERS_DISPATCH[re.compile('([^\=]+) (?:plz|pls|please|plox)(?: run=(?P<runid>[0-9]+))?')] = order_coffee
-
+  ORDERS_DISPATCH[re.compile('order(?: an?)? (?P<order>[^\=]+)(?: run=(?P<runid>[0-9]+))?')] = order_coffee
+  ORDERS_DISPATCH[re.compile('(?P<order>[^\=]+) (?:plz|pls|please|plox|cheers)(?: run=(?P<runid>[0-9]+))?')] = order_coffee
+  ORDERS_DISPATCH[re.compile('(?:plz|pls|please|plox) (?P<order>[^\=]+)(?: run=(?P<runid>[0-9]+))?')] = order_coffee
 
 def load_triggers(filename):
   """Parse the sass file, loading them into the TRIGGERS global.
@@ -210,12 +215,25 @@ def handle_mention_message(slackclient, user, channel, text):
   clean = clean_text(text)
 
   message_processed = False
+  error_resolver = None
   for order_re in ORDERS_DISPATCH:
+    # Go through each command regex
+    # If the command errors then store the error
+    # Keep going until a command matches successfully or we run out of commands
+    # If no command matches, resolve the stored error
+    # If a command succeeds don't resolve the stored error
     match = order_re.match(clean)
     if match:
-      ORDERS_DISPATCH[order_re](slackclient, user, channel, match)
+      success, resolver = ORDERS_DISPATCH[order_re](slackclient, user, channel, match)
       message_processed = True
-      break
+      if success:
+        error_resolver = resolver
+        break
+      else:
+        error_resolver = resolver
+
+  if error_resolver is not None:
+    error_resolver()
 
   if trigger_check(slackclient, user, channel, clean):
     message_processed = True
