@@ -1,9 +1,11 @@
 import logging
+import os
 import pprint
 import random
 import re
 import threading
 import time
+import typing
 
 from application import app, db, events, models
 from application.models import Coffee, Event, Run, User, sydney_timezone_now
@@ -287,8 +289,9 @@ def _die_on_exception_wrapper(f: typing.Callable):
         try:
             return f(*args, **kwargs)
         except Exception:
-            logging.exception('One of the connections had an error, killing '
-                'the entire process to allow heroku to restart it.')
+            logging.exception(
+                'One of the connections had an error, killing the entire '
+                'process to allow heroku to restart it.')
             os.kill(os.getpid(), 9)
     return _wrapper
 
