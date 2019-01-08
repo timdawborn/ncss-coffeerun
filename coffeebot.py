@@ -277,6 +277,22 @@ class WrappedSlackBot:
             time.sleep(0.1)
 
 
+def _die_on_exception_wrapper(f: typing.Callable):
+    '''Wrapper that kills the current process if an exception is thrown.
+
+    This function is used to make sure that we restart the chatbot on any
+    errors. This is a temporary hack.
+    '''
+    def _wrapper(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except Exception:
+            logging.exception('One of the connections had an error, killing '
+                'the entire process to allow heroku to restart it.')
+            os.kill(os.getpid(), 9)
+    return _wrapper
+
+
 def main():
     threads = []
     for slack_workspace in models.SlackTeamAccessToken.query.filter(
@@ -289,7 +305,7 @@ def main():
         )
         threads.append(
                 threading.Thread(
-                    target=sb.loop, args=(sb.client,)))
+                    target=_die_on_exception_wrapper(sb.loop), args=(sb.client,)))
     # Start all threads
     for thread in threads:
         thread.start()
