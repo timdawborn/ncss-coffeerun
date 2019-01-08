@@ -301,9 +301,6 @@ def main():
 if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
 
-    # if not TOKEN or not USER_ID:
-    #     logging.error('Missing slack token or slack user id')
-
     # FIXME: This is a hack... But I can't think of anything better.
     # Add a test request context so that babel will work.
     app.test_request_context().push()
