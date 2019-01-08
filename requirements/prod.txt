@@ -6,4 +6,4 @@ psycopg2>=2.7.3.2,<2.8
 
 gunicorn==19.9
 
-sentry-sdk>=0.6.6,0.7
+sentry-sdk>=0.6.6,<0.7
