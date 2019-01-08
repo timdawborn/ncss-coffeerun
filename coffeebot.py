@@ -253,6 +253,11 @@ class WrappedSlackBot:
             channel.send_message(msg)
 
     def loop(self, client):
+        # FIXME(tsukasa-au): This is a hack... But I can't think of anything
+        # better.
+        # Add a test request context so that babel will work.
+        app.test_request_context().push()
+
         logger = logging.getLogger('loop')
         res = client.rtm_connect()
         logger.debug('Connection result: %r', res)
