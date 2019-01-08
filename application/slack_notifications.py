@@ -32,8 +32,8 @@ class SlackNotifier:
     def __init__(self):
         self._workspaces = {}
         for workspace in SlackTeamAccessToken.query.filter(
-                SlackTeamAccessToken.wants_slack_notifications is True,
-                SlackTeamAccessToken.access_token is not None,
+                SlackTeamAccessToken.wants_slack_notifications == True,  # noqa: E711. `== True` is needed for SQLAlchemy operator binding magic. `is True` does not work.
+                SlackTeamAccessToken.access_token != None,  # noqa: E711. `!= None` is needed for SQLAlchemy operator binding magic. `is not None` does not work.
         ):
             details = SlackDetails(
                     workspace.access_token, workspace.team_id)

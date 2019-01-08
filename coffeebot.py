@@ -275,7 +275,7 @@ class WrappedSlackBot:
 def main():
     threads = []
     for slack_workspace in models.SlackTeamAccessToken.query.filter(
-            models.SlackTeamAccessToken.coffee_bot_slack_access_token is not None,
+            models.SlackTeamAccessToken.coffee_bot_slack_access_token != None,  # noqa: E711. `!= None` is needed for SQLAlchemy operator binding magic. `is not None` does not work.
     ):
         sb = WrappedSlackBot(
                 slack_workspace.coffee_bot_slack_access_token,
