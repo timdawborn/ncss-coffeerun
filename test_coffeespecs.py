@@ -216,7 +216,7 @@ class TestParser(unittest.TestCase):
 
 
 class TestWeirdCoffeeInput(unittest.TestCase):
-    def testJoel(self):
+    def test_joel(self):
         c = Coffee('It is a truth universally acknowledged, that a single joel in possession of a good fortune, must be in want of an extra-shot piccolo latte in the morning, plox.')
         self.assertEqual(c.specs, {
             'type': 'Piccolo Latte',
@@ -224,7 +224,7 @@ class TestWeirdCoffeeInput(unittest.TestCase):
         })
         self.assertTrue(c.validate())
 
-    def testLiam(self):
+    def test_liam(self):
         c = Coffee('let\'s try this again. I would very much enjoy if you could provide me with an Iced latte please thank you for listening to my TED Talk')
         self.assertEqual(c.specs, {
                 'type': 'Latte',
@@ -232,14 +232,14 @@ class TestWeirdCoffeeInput(unittest.TestCase):
         })
         self.assertTrue(c.validate())
 
-    def testShelly(self):
+    def test_shelley(self):
         c = Coffee('gimme the flat white bean pls')
         self.assertEqual(c.specs, {
                 'type': 'Flat White',
         })
         self.assertTrue(c.validate())
         
-    def testShelly2(self):
+    def test_shelley2(self):
         c = Coffee('yo beanie boy give me a smol iced latte pls')
         self.assertEqual(c.specs, {
                 'size': 'Small',
@@ -247,16 +247,22 @@ class TestWeirdCoffeeInput(unittest.TestCase):
                 'type': 'Latte',
         })
         self.assertTrue(c.validate())
-
     
-    def testJackson(self):
+    def test_shelley3(self):
+        c = Coffee('my best boy hit me with an iced latte pls')
+        self.assertEqual(c.specs, {
+            'iced': 'Iced',
+            'type': 'Latte'
+        })
+    
+    def test_jackson(self):
         c = Coffee('bestow upon me thy chocolated fount in the morrow, i\'m ploxed to request this of you')
         self.assertFalse(c.validate())
 
 
 class TestPrettyPrint(unittest.TestCase):
 
-    def test_print_(self):
+    def test_print_large_cap(self):
         c = Coffee('Large Cap')
         self.assertEqual('Large Cappuccino', str(c))
 
