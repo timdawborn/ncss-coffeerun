@@ -20,8 +20,8 @@ class TestParser(unittest.TestCase):
     def test_get_tokens(self):
         tokens = get_all_word_tokens()
 
-        self.assertTrue('chocolate' in tokens)
-        self.assertTrue('extra-shot' in tokens)
+        self.assertIn('chocolate', tokens)
+        self.assertIn('extra-shot', tokens)
         # All tokens should be lowercase
         self.assertTrue(all([x.islower() for x in tokens]))
 
