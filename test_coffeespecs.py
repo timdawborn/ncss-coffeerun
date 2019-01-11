@@ -238,7 +238,7 @@ class TestWeirdCoffeeInput(unittest.TestCase):
                 'type': 'Flat White',
         })
         self.assertTrue(c.validate())
-        
+
     def test_shelley2(self):
         c = Coffee('yo beanie boy give me a smol iced latte pls')
         self.assertEqual(c.specs, {
@@ -247,14 +247,14 @@ class TestWeirdCoffeeInput(unittest.TestCase):
                 'type': 'Latte',
         })
         self.assertTrue(c.validate())
-    
+
     def test_shelley3(self):
         c = Coffee('my best boy hit me with an iced latte pls')
         self.assertEqual(c.specs, {
             'iced': 'Iced',
             'type': 'Latte'
         })
-    
+
     def test_jackson(self):
         c = Coffee('bestow upon me thy chocolated fount in the morrow, i\'m ploxed to request this of you')
         self.assertFalse(c.validate())

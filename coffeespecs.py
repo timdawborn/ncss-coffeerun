@@ -30,12 +30,12 @@ class Coffee(object):
         request = request.lower().strip()
         request_tokens = request.split()
         request_bigrams = [' '.join(x) for x in zip(request_tokens, request_tokens[1:])]
-        
+
         tokens = get_all_word_tokens()
 
         # Start of coffee spec gathering
         self.specs = {}
-        
+
         unparsed_tokens = set(request_tokens)
         for bigram in request_bigrams:
             if bigram in tokens:
@@ -43,7 +43,7 @@ class Coffee(object):
                 word1, word2 = bigram.split()
                 unparsed_tokens.remove(word1)
                 unparsed_tokens.remove(word2)
-        
+
         for request_token in set(unparsed_tokens):
             if request_token in tokens:
                 self.add_token(request_token)
@@ -56,7 +56,6 @@ class Coffee(object):
                 for spec, matched_token in result:
                     self.add_spec(spec, matched_token)
                 unparsed_tokens.remove(token)
-
 
     def get_price_key(self, fuzzy_fields=None):
         if fuzzy_fields is None:
@@ -157,7 +156,7 @@ class Coffee(object):
         return coffee
 
 
-def parse_abbreviation(all_abbreviation_tokens_by_spec, token_input, remaining_specs): 
+def parse_abbreviation(all_abbreviation_tokens_by_spec, token_input, remaining_specs):
     for spec in remaining_specs:
         if token_input in all_abbreviation_tokens_by_spec[spec]:
             return ((spec, token_input), )
@@ -185,7 +184,7 @@ class CoffeeSpecOption(object):
 
     def __hash__(self):
         return hash(self.specname + ':' + self.name)
-    
+
     def ___eq___(self, other):
         return self.specname == other.specname and self.name == other.name
 
@@ -199,23 +198,22 @@ class CoffeeSpec(object):
         self.word_tokens = {}
         self.abbreviation_tokens = {}
         self.options = set()
-        if options == None:
+        if options is None:
             options = []
         for option in options:
             self.add_option(option)
-    
+
     def create_option(self, name, abbreviation_tokens, word_tokens):
         # 'Latte', ['l'], ['Lat']
         option = CoffeeSpecOption(self.name, name, abbreviation_tokens, word_tokens)
         self.add_option(option)
-    
+
     def add_option(self, option):
         self.options.add(option)
         self.add_word_tokens(option)
         self.add_abbreviations(option)
-    
+
     def add_word_tokens(self, option):
-        #self.word_tokens[option.name.lower()] = option
         for token in option.word_tokens:
             token = token.lower()
             if token in self.word_tokens:
@@ -252,7 +250,7 @@ class CoffeeSpec(object):
             for word_token in opt.word_tokens:
                 out.add(word_token)
         return out
-    
+
     def get_abbreviation_tokens(self):
         out = set()
         for opt in self.options:
