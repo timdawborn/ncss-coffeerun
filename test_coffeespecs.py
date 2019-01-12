@@ -218,14 +218,13 @@ class TestParser(unittest.TestCase):
         self.assertEqual(str(Coffee('LC!')), 'Large Cappuccino')
         self.assertEqual(str(Coffee('Double-shot, soy, latte!')), 'Regular Soy Extra-shot Latte')
         self.assertEqual(str(Coffee('Double-shot, soy, latte!')), 'Regular Soy Extra-shot Latte')
-    
+
     def test_iced_choc_vs_iced_hot_choc(self):
         self.assertEqual(str(Coffee('icy choc')), 'Regular Iced Chocolate')
         self.assertEqual(str(Coffee('chocolate iced')), 'Regular Iced Hot Chocolate')
         self.assertEqual(str(Coffee('icy cold chocolate')), 'Regular Iced Hot Chocolate')
         self.assertEqual(str(Coffee('iced chocco')), 'Regular Iced Chocolate')
         self.assertEqual(str(Coffee('hot chocco')), 'Regular Hot Chocolate')
-
 
 
 class TestWeirdCoffeeInput(unittest.TestCase):
